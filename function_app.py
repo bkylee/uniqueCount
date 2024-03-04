@@ -19,7 +19,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # i also created app settings for these
 
     # Select database
-    visitorDetail = req.connection.remoteAddress
+    visitorDetail = req.headers.get("X-Forwarded-For") or req.headers.get("X-Real-IP")
     hashedVersion = hash(visitorDetail)
 
     database_name = "my-database"
