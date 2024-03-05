@@ -42,6 +42,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     result_list = list(results)
     count = result_list[0] if result_list else 0
 
+    item_response2 = container2.read_item(item="test2", partition_key="unique")
+
     if count == 0:
         item_response2["count"] += 1
         container2.upsert_item(item_response2)
