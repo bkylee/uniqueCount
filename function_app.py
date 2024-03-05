@@ -35,7 +35,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # Check DB to see if hashedVersion is in DB
 
-    results = container2.query_items(
+    results = container1.query_items(
         query=f"SELECT VALUE COUNT(1) FROM c WHERE c.hashedIP = '{hashedVersion}'",
         enable_cross_partition_query=True,
     )
