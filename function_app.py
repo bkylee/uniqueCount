@@ -34,16 +34,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     container2 = database.get_container_client(container_name2)
 
     # Check DB to see if hashedVersion is in DB
-    item_response1 = database.query_databases(
-        f"SELECT * FROM '{container_name1}' WHERE '{container_name1}'.hashedIPs  = '{hashedVersion}'"
+
+    results = container2.query_items(
+        query=f"SELECT VALUE COUNT(1) FROM c WHERE c.hashedIP = '{hashedVersion}'",
+        enable_cross_partition_query=True,
     )
 
     item_response2 = container2.read_item(item="test2", partition_key="unique")
 
-    items = list(item_response1.fetch_next())
-    if not items:
+    result_list = list(results)
+    count = result_list[0] if result_list else 0
+
+    if count == 0:
         item_response2["count"] += 1
         container2.upsert_item(item_response2)
-        container1.upsert_item({"id": item_response2.count, "hashedIP": hashedVersion})
+        container1.upsert_item(
+            {"id": f"{item_response2['count']}", "hashedIP": hashedVersion}
+        )
+        item_response2 = container2.read_item(item="test2", partition_key="unique")
 
     return func.HttpResponse(json.dumps({"count": item_response2["count"]}))
